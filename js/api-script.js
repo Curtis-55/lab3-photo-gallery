@@ -31,6 +31,15 @@ document.getElementById("searchSubmit").addEventListener("click", () => {
            - Only use the Storage API to save the API key if one was inputted
 */
 function saveKey() {
+  apiKey = document.getElementById('key').value.trim();
+  
+  
+  if (apiKey){
+    localStorage.setItem("apiKey", apiKey);
+  } else {
+    alert("Enter an API key");
+  }
+
   
 }
 
@@ -42,11 +51,15 @@ function saveKey() {
            - Update the visibiltity to show the photo gallery search setup (hint: look at the HTML to access and CSS property)
 */
 function hideKeySetup() {
+
+  const keySetup = document.getElementById('keySetup');
+  keySetup.remove();
+
+  const gallerySetup = document.getElementById('gallerySetup');
+  gallerySetup.style.visibility = "visible";
   
 }
-
-
-
+  
 
 /*
     TO-DO: Finish the getImages function:
@@ -69,11 +82,33 @@ function hideKeySetup() {
              - Output error to console
              - Update photo gallery message to "Something went wrong..." 
 */
-function getImages(term) {
+async function getImages(term) {
+  gallery= document.getElementById("gallery");
+  const apiKey= localStorage.getItem("apiKey");
+  console.log(apiKey);
+
   
+
+  gallery.innerHTML =" ";
+  gallery.innerHTML= "<p> loading </p>";
+
+   
+  const url= 'https://api.unsplash.com/search/photos/?client_id='+apiKey+'&query='+term+'&per_page=15';
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log(data);
+    displayImages(data, term);
+  }
+  catch (error) {
+   console.log(error);
+   gallery.innerHTML= "<p> something went wrong </p>"
+  }
+
+
+
 }
-
-
 
 /*
     TO-DO: Finish the displayImages function:
@@ -89,5 +124,35 @@ function getImages(term) {
              - Update image title tooltip to photographer name. If missing, update to empty string
 */
 function displayImages(data, term) {
+  photoGall =document.getElementById('gallery');
+  photoGall.innerHTML = '';
+
+  const images = data.results
+
+  if(!images) {
+    gallery.innerHTML = " No results returned for term. "
+
+  }
+   else {
+
+    for (i=0; i<15; i++) {
+      const imgdata = images[i]
+    
+        img = document.createElement('img') 
+        img.src= imgdata.urls.small;
+        img.alt= imgdata.username;
+        img.title = imgdata.user.name;
+
+
+      photoGall.appendChild(img);
+    
+    }
+    }
+
+
+
+  
+  
+  
   
 }
